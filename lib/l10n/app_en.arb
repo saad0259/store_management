@@ -1,11 +1,10 @@
 {
 
     "language": "English",
-    "@language": {
-        "desctiption": "The Current Language"
-    },
     "greeting": "Hello World",
-    "@greeting": {
-        "desctiption": "Just Greeting"
-    }
+    "addRecord": "Add Record",
+    "addCustomer":"Add Customer",
+    "addProduct": "Add Product",
+    "getInvoice": "Get Invoice"
+
 }

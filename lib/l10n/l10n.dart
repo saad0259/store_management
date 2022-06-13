@@ -6,7 +6,6 @@ class L10n {
   L10n()
       : all = const [
           Locale('en'),
-          Locale('ar'),
           Locale('ur'),
         ];
 
@@ -14,8 +13,6 @@ class L10n {
     switch (code) {
       case 'en':
         return '🇺🇸';
-      case 'ar':
-        return '🇸🇩';
       case 'ur':
         return '🇵🇰';
       default:

@@ -1,4 +1,10 @@
 {
     "language":"اردو",
-    "greeting":"خوش آمدید"
+    "greeting":"خوش آمدید",
+    "addRecord": "Add Record",
+    "addCustomer":"Add Customer",
+    "addProduct": "Add Product",
+    "getInvoice": "Get Invoice"
+
+
 }
