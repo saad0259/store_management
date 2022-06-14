@@ -4,7 +4,15 @@
     "addRecord": "Add Record",
     "addCustomer":"Add Customer",
     "addProduct": "Add Product",
-    "getInvoice": "Get Invoice"
+    "getInvoice": "Get Invoice",
+    "recentTransactions":"Recent Transactions",
+    "noCustomerFound":"No Customers Found",
+    "customerAddedSuccessfully": "Customer Added Successfully",
+    "error":"Error Occured"
+
+
+
+
 
 
 }

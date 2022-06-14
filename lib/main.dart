@@ -8,6 +8,8 @@ import 'customer/add_customer.dart';
 import 'l10n/l10n.dart';
 import 'service_locator.dart';
 import 'stores/locale_store.dart';
+import 'theme/dark_theme.dart';
+import 'theme/light_theme.dart';
 import 'view/home/home_screen.dart';
 
 void main() async {
@@ -27,10 +29,12 @@ class MyApp extends StatelessWidget {
     return Observer(builder: (_) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          brightness: Brightness.dark,
-        ),
+        // theme: ThemeData(
+        //   primarySwatch: Colors.blue,
+        //   brightness: Brightness.dark,
+        // ),
+        // theme: darkTheme(context),
+        theme: lightTheme(context),
         supportedLocales: L10n().all,
         locale: localeStore.locale,
         localizationsDelegates: const [
