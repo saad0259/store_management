@@ -1,4 +1,32 @@
 {
     "language":"اردو",
-    "greeting":"خوش آمدید"
+    "greeting":"خوش آمدید",
+    
+    "addRecord": "Add Record",
+    "getInvoice": "Get Invoice",
+    "error":"Error Occured",
+    "name":"Name",
+    "addItem":"Add Item",
+
+    "addCustomer":"Add Customer",
+    "customerAddedSuccessfully": "Customer Added Successfully",
+    "recentCustomers":"Recent Customers",
+    "noCustomerFound":"No Customers Found",
+
+    "addProduct": "Add Product",
+    "productAddedSuccessfully": "Product Added Successfully",
+    "recentProducts":"Recent Products",
+    "noProductFound":"No Product Found",
+
+    "addDailySale": "Add Daily Sale",
+    "dailySaleAddedSuccessfully": "Daily Sale Added Successfully",
+    "recentDailySales":"Recent Daily Sales",
+    "noDailySaleFound":"No Daily Sale Found"
+
+
+
+
+
+
+
 }

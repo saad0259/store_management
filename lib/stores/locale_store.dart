@@ -9,11 +9,4 @@ abstract class _LocaleStoreBase with Store {
   Locale locale = const Locale('en');
   @action
   setLocale(Locale value) => locale = value;
-
-  @observable
-  String dropDownValue = 'One';
-  @action
-  setdropDownValue(String value) => dropDownValue = value;
-
-  List<String> numbers = ['One', 'Two', 'Free', 'Four'];
 }
