@@ -41,7 +41,7 @@ class LanguagePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
       return DropdownButton<Locale>(
-        value: localeStore.locale,
+        value: localeStore.currentLocale,
         icon: const Icon(Icons.arrow_downward),
         iconSize: 16,
         elevation: 16,
@@ -51,7 +51,7 @@ class LanguagePicker extends StatelessWidget {
           color: Colors.deepPurpleAccent,
         ),
         onChanged: (Locale? newValue) {
-          localeStore.locale = newValue ?? l10n.all.first;
+          localeStore.currentLocale = newValue ?? l10n.all.first;
         },
         items: l10n.all.map<DropdownMenuItem<Locale>>((Locale value) {
           return DropdownMenuItem<Locale>(

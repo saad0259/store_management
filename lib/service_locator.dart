@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'db/database.dart';
 import 'db/db_helper/db_helper.dart';
 import 'l10n/l10n.dart';
+import 'repo/customer_repo.dart';
 import 'stores/customer_store.dart';
 import 'stores/daily_sale_store.dart';
 import 'stores/locale_store.dart';
@@ -24,6 +25,11 @@ Future<void> setupLocator() async {
   getIt.registerLazySingleton(() => MyAppDb());
   getIt.registerLazySingleton(() => DbHelper(
         getIt<MyAppDb>(),
+      ));
+
+  //Repo
+  getIt.registerFactory(() => CustomerRepo(
+        getIt<DbHelper>(),
       ));
 
   //Stores

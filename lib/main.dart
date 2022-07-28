@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         // theme: darkTheme(context),
         theme: lightTheme(context),
         supportedLocales: L10n().all,
-        locale: localeStore.locale,
+        locale: localeStore.currentLocale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -62,95 +62,3 @@ void _setupLogging() {
     print('${rec.level.name}: ${rec.time}: ${rec.message}');
   });
 }
-
-
-
-// class MyHomePage extends StatelessWidget {
-//   MyHomePage({Key? key, required this.localeStore}) : super(key: key);
-//   final LocaleStore localeStore;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     ThemeData theme = Theme.of(context);
-//     final double screenWidth = MediaQuery.of(context).size.width;
-//     final double screenHeight = MediaQuery.of(context).size.height;
-
-//     return SafeArea(
-//         child: Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Flutter Demo'),
-//         actions: [
-//           LanguagePicker(
-//             localeStore: localeStore,
-//           )
-//         ],
-//       ),
-//       body: SizedBox(
-//         width: screenWidth,
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             const LanguageWidget(),
-//             const SizedBox(height: 20),
-//             Text(
-//               AppLocalizations.of(context)!.language,
-//             ),
-//             const SizedBox(height: 20),
-//             Text(AppLocalizations.of(context)!.greeting)
-//           ],
-//         ),
-//       ),
-//     ));
-//   }
-// }
-
-// class LanguageWidget extends StatelessWidget {
-//   const LanguageWidget({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final Locale locale = Localizations.localeOf(context);
-//     final flag = L10n.getFlag(locale.languageCode);
-//     return Center(
-//       child: CircleAvatar(
-//           backgroundColor: Colors.blue.shade300,
-//           radius: 72,
-//           child: Text(
-//             flag,
-//             style: const TextStyle(fontSize: 72),
-//           )),
-//     );
-//   }
-// }
-
-// class LanguagePicker extends StatelessWidget {
-//   const LanguagePicker({Key? key, required this.localeStore}) : super(key: key);
-//   final LocaleStore localeStore;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Observer(builder: (_) {
-//       return DropdownButton<Locale>(
-//         value: localeStore.locale,
-//         icon: const Icon(Icons.arrow_downward),
-//         iconSize: 24,
-//         elevation: 16,
-//         style: const TextStyle(color: Colors.deepPurple),
-//         underline: Container(
-//           height: 2,
-//           color: Colors.deepPurpleAccent,
-//         ),
-//         onChanged: (Locale? newValue) {
-//           localeStore.locale = newValue ?? L10n().all.first;
-//         },
-//         items: L10n().all.map<DropdownMenuItem<Locale>>((Locale value) {
-//           return DropdownMenuItem<Locale>(
-//             value: value,
-//             child: Text(value.languageCode),
-//           );
-//         }).toList(),
-//       );
-//     });
-//   }
-// }

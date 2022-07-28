@@ -1,16 +1,21 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
 
 import '../../service_locator.dart';
 import '../../utils/function_response.dart';
 import '../../utils/reusable_widgets.dart';
 import '../../view/reuseable/appbar.dart';
 import '../../utils/custom_alerts.dart';
+import '../models/customer.dart';
 import '../models/daily_sale.dart';
+import '../repo/customer_repo.dart';
 import '../stores/daily_sale_store.dart';
+import '../stores/locale_store.dart';
 
 class AddDailySale extends StatelessWidget {
   AddDailySale({Key? key}) : super(key: key);
@@ -163,7 +168,10 @@ class _AddItemWidgetState extends State<AddItemWidget> {
   final TextEditingController nameController = TextEditingController();
 
   final DailySaleStore dailySaleStore = getIt<DailySaleStore>();
+  final LocaleStore _localeStore = getIt<LocaleStore>();
   final CustomAlerts customAlerts = getIt<CustomAlerts>();
+
+  final CustomerRepo customerRepo = getIt<CustomerRepo>();
 
   late FocusNode _txtNode;
 
@@ -209,9 +217,24 @@ class _AddItemWidgetState extends State<AddItemWidget> {
         success: fResponse.success);
   }
 
+  Future<void> changeDate() async {
+    await DatePicker.showDatePicker(context,
+        showTitleActions: true,
+        minTime: DateTime(2000, 3, 5),
+        maxTime: DateTime(2100, 6, 7),
+        onChanged: (date) {}, onConfirm: (date) {
+      dailySaleStore.updateSelectedDate(date);
+    },
+        currentTime: dailySaleStore.selectedDate,
+        locale: _localeStore.currentLocale == Locale('en')
+            ? LocaleType.en
+            : LocaleType.ar);
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations appLocale = AppLocalizations.of(context)!;
+    ThemeData theme = Theme.of(context);
 
     return Expanded(
       child: Padding(
@@ -233,7 +256,36 @@ class _AddItemWidgetState extends State<AddItemWidget> {
                 appLocale.addDailySale,
                 style: Theme.of(context).textTheme.headline6,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // const SizedBox(width: 0),
+                  Text(
+                    '    Date',
+                    style: theme.textTheme.headline6
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Observer(builder: (_) {
+                    return InkWell(
+                      onTap: () async {
+                        await changeDate();
+                      },
+                      child: Text(
+                        DateFormat('d MMM y')
+                            .format(dailySaleStore.selectedDate),
+                        style: theme.textTheme.headline6,
+                      ),
+                    );
+                  }),
+                  IconButton(
+                      onPressed: () async {
+                        await changeDate();
+                      },
+                      icon: const Icon(Icons.calendar_month)),
+                ],
+              ),
+              const SizedBox(height: 10),
               TextFormField(
                 autofocus: true,
                 controller: nameController,
@@ -248,27 +300,16 @@ class _AddItemWidgetState extends State<AddItemWidget> {
                         icon: const Icon(Icons.close))),
               ),
               const SizedBox(height: 20),
-              Observer(builder: (_) {
-                return TextButton(
-                    onPressed: () {
-                      DatePicker.showDatePicker(context,
-                          showTitleActions: true,
-                          minTime: DateTime(2018, 3, 5),
-                          maxTime: DateTime(2100, 6, 7), onChanged: (date) {
-                        print('change $date');
-                      }, onConfirm: (date) {
-                        dailySaleStore.updateSelectedDate(date);
-                        print('confirm $date');
-                      },
-                          currentTime: dailySaleStore.selectedDate,
-                          locale: LocaleType.en);
-                    },
-                    child: Text(
-                      'show date time picker',
-                      style: TextStyle(color: Colors.blue),
-                    ));
-              }),
-              const SizedBox(height: 40),
+              // StreamBuilder<List<Customer>>(
+              //   stream: customerRepo.watchCustomers().first,
+              //   builder: (context, snapshot) {
+              //     return DropdownSearch(
+              //       items: ,
+
+              //     );
+              //   }
+              // ),
+              const SizedBox(height: 20),
               customElevatedButton(
                 context,
                 onPressed: () async {

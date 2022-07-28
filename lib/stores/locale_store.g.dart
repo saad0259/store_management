@@ -13,15 +13,15 @@ mixin _$LocaleStore on _LocaleStoreBase, Store {
       Atom(name: '_LocaleStoreBase.locale', context: context);
 
   @override
-  Locale get locale {
+  Locale get currentLocale {
     _$localeAtom.reportRead();
-    return super.locale;
+    return super.currentLocale;
   }
 
   @override
-  set locale(Locale value) {
-    _$localeAtom.reportWrite(value, super.locale, () {
-      super.locale = value;
+  set currentLocale(Locale value) {
+    _$localeAtom.reportWrite(value, super.currentLocale, () {
+      super.currentLocale = value;
     });
   }
 
@@ -42,7 +42,7 @@ mixin _$LocaleStore on _LocaleStoreBase, Store {
   @override
   String toString() {
     return '''
-locale: ${locale}
+locale: ${currentLocale}
     ''';
   }
 }

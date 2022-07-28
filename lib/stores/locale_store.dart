@@ -6,7 +6,7 @@ class LocaleStore = _LocaleStoreBase with _$LocaleStore;
 
 abstract class _LocaleStoreBase with Store {
   @observable
-  Locale locale = const Locale('en');
+  Locale currentLocale = const Locale('en');
   @action
-  setLocale(Locale value) => locale = value;
+  setLocale(Locale value) => currentLocale = value;
 }
