@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../models/customer.dart';
+import '../../repo/customer_repo.dart';
 import '../../service_locator.dart';
-import '../../stores/customer_store.dart';
+import '../../state/customer_store.dart';
 import '../../utils/function_response.dart';
 import '../../utils/reusable_widgets.dart';
 import '../../view/reuseable/appbar.dart';
@@ -13,8 +14,7 @@ import '../../utils/custom_alerts.dart';
 class AddCustomerScreen extends StatelessWidget {
   AddCustomerScreen({Key? key}) : super(key: key);
   static const routeName = '/add-customer-screen';
-  final CustomerStore customerStore = getIt<CustomerStore>();
-
+  final CustomerRepo customerRepo = getIt<CustomerRepo>();
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
@@ -36,7 +36,7 @@ class AddCustomerScreen extends StatelessWidget {
                   indent: 150,
                   endIndent: 100,
                 ),
-                CustomersList(customerStore: customerStore),
+                CustomersList(customerRepo: customerRepo),
               ],
             ),
           ),
@@ -49,10 +49,10 @@ class AddCustomerScreen extends StatelessWidget {
 class CustomersList extends StatelessWidget {
   CustomersList({
     Key? key,
-    required this.customerStore,
+    required this.customerRepo,
   }) : super(key: key);
-  final CustomerStore customerStore;
   final CustomAlerts customAlerts = getIt<CustomAlerts>();
+  final CustomerRepo customerRepo;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class CustomersList extends StatelessWidget {
             const SizedBox(height: 20),
             Expanded(
               child: StreamBuilder<List<Customer>>(
-                  stream: customerStore.watchCustomers(),
+                  stream: customerRepo.watchCustomers(),
                   builder: (context, snapshot) {
                     return (snapshot.hasError ||
                             !snapshot.hasData ||
@@ -120,7 +120,7 @@ class CustomersList extends StatelessWidget {
                                                     .confirmDelete(
                                                         context: context);
                                             if (fResponse.success) {
-                                              customerStore
+                                              customerRepo
                                                   .removeCustomer(currenItem);
                                             }
 
@@ -159,8 +159,8 @@ class AddCustomerWidget extends StatefulWidget {
 class _AddCustomerWidgetState extends State<AddCustomerWidget> {
   final TextEditingController nameController = TextEditingController();
 
-  final CustomerStore customerStore = getIt<CustomerStore>();
   final CustomAlerts customAlerts = getIt<CustomAlerts>();
+  final CustomerRepo customerRepo = getIt<CustomerRepo>();
 
   late FocusNode _txtNode;
 
@@ -178,24 +178,19 @@ class _AddCustomerWidgetState extends State<AddCustomerWidget> {
 
   Future<void> addCustomer(
       BuildContext context, AppLocalizations appLocale) async {
-    final Customer customer = Customer(
-      uid: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: nameController.text,
-      serialNumber: DateTime.now().millisecondsSinceEpoch,
-      createdAt: DateTime.now(),
-      deletedAt: null,
-    );
     final FunctionResponse fResponse =
-        await customerStore.addCustomer(customer);
+        await customerRepo.addCustomer(nameController.text);
     if (fResponse.success) {
       nameController.clear();
     }
-    customAlerts.showSnackBar(
-        context,
-        fResponse.success
-            ? appLocale.customerAddedSuccessfully
-            : appLocale.error,
-        success: fResponse.success);
+    if (mounted) {
+      customAlerts.showSnackBar(
+          context,
+          fResponse.success
+              ? appLocale.customerAddedSuccessfully
+              : appLocale.error,
+          success: fResponse.success);
+    }
   }
 
   @override

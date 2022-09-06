@@ -11,14 +11,14 @@ class Customer extends DataClass implements Insertable<Customer> {
   final String uid;
   final int serialNumber;
   final String name;
-  final bool isSynced;
+  final String? syncedAt;
   final String createdAt;
   final String? deletedAt;
   Customer(
       {required this.uid,
       required this.serialNumber,
       required this.name,
-      required this.isSynced,
+      this.syncedAt,
       required this.createdAt,
       this.deletedAt});
   factory Customer.fromData(Map<String, dynamic> data, {String? prefix}) {
@@ -30,8 +30,8 @@ class Customer extends DataClass implements Insertable<Customer> {
           .mapFromDatabaseResponse(data['${effectivePrefix}serial_number'])!,
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      isSynced: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_synced'])!,
+      syncedAt: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}synced_at']),
       createdAt: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}created_at'])!,
       deletedAt: const StringType()
@@ -44,7 +44,9 @@ class Customer extends DataClass implements Insertable<Customer> {
     map['uid'] = Variable<String>(uid);
     map['serial_number'] = Variable<int>(serialNumber);
     map['name'] = Variable<String>(name);
-    map['is_synced'] = Variable<bool>(isSynced);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<String?>(syncedAt);
+    }
     map['created_at'] = Variable<String>(createdAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<String?>(deletedAt);
@@ -57,7 +59,9 @@ class Customer extends DataClass implements Insertable<Customer> {
       uid: Value(uid),
       serialNumber: Value(serialNumber),
       name: Value(name),
-      isSynced: Value(isSynced),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
       createdAt: Value(createdAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -72,7 +76,7 @@ class Customer extends DataClass implements Insertable<Customer> {
       uid: serializer.fromJson<String>(json['uid']),
       serialNumber: serializer.fromJson<int>(json['serialNumber']),
       name: serializer.fromJson<String>(json['name']),
-      isSynced: serializer.fromJson<bool>(json['isSynced']),
+      syncedAt: serializer.fromJson<String?>(json['syncedAt']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
       deletedAt: serializer.fromJson<String?>(json['deletedAt']),
     );
@@ -84,7 +88,7 @@ class Customer extends DataClass implements Insertable<Customer> {
       'uid': serializer.toJson<String>(uid),
       'serialNumber': serializer.toJson<int>(serialNumber),
       'name': serializer.toJson<String>(name),
-      'isSynced': serializer.toJson<bool>(isSynced),
+      'syncedAt': serializer.toJson<String?>(syncedAt),
       'createdAt': serializer.toJson<String>(createdAt),
       'deletedAt': serializer.toJson<String?>(deletedAt),
     };
@@ -94,14 +98,14 @@ class Customer extends DataClass implements Insertable<Customer> {
           {String? uid,
           int? serialNumber,
           String? name,
-          bool? isSynced,
+          String? syncedAt,
           String? createdAt,
           String? deletedAt}) =>
       Customer(
         uid: uid ?? this.uid,
         serialNumber: serialNumber ?? this.serialNumber,
         name: name ?? this.name,
-        isSynced: isSynced ?? this.isSynced,
+        syncedAt: syncedAt ?? this.syncedAt,
         createdAt: createdAt ?? this.createdAt,
         deletedAt: deletedAt ?? this.deletedAt,
       );
@@ -111,7 +115,7 @@ class Customer extends DataClass implements Insertable<Customer> {
           ..write('uid: $uid, ')
           ..write('serialNumber: $serialNumber, ')
           ..write('name: $name, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -120,7 +124,7 @@ class Customer extends DataClass implements Insertable<Customer> {
 
   @override
   int get hashCode =>
-      Object.hash(uid, serialNumber, name, isSynced, createdAt, deletedAt);
+      Object.hash(uid, serialNumber, name, syncedAt, createdAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -128,7 +132,7 @@ class Customer extends DataClass implements Insertable<Customer> {
           other.uid == this.uid &&
           other.serialNumber == this.serialNumber &&
           other.name == this.name &&
-          other.isSynced == this.isSynced &&
+          other.syncedAt == this.syncedAt &&
           other.createdAt == this.createdAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -137,14 +141,14 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
   final Value<String> uid;
   final Value<int> serialNumber;
   final Value<String> name;
-  final Value<bool> isSynced;
+  final Value<String?> syncedAt;
   final Value<String> createdAt;
   final Value<String?> deletedAt;
   const CustomersCompanion({
     this.uid = const Value.absent(),
     this.serialNumber = const Value.absent(),
     this.name = const Value.absent(),
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
   });
@@ -152,7 +156,7 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
     required String uid,
     this.serialNumber = const Value.absent(),
     required String name,
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     required String createdAt,
     this.deletedAt = const Value.absent(),
   })  : uid = Value(uid),
@@ -162,7 +166,7 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
     Expression<String>? uid,
     Expression<int>? serialNumber,
     Expression<String>? name,
-    Expression<bool>? isSynced,
+    Expression<String?>? syncedAt,
     Expression<String>? createdAt,
     Expression<String?>? deletedAt,
   }) {
@@ -170,7 +174,7 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
       if (uid != null) 'uid': uid,
       if (serialNumber != null) 'serial_number': serialNumber,
       if (name != null) 'name': name,
-      if (isSynced != null) 'is_synced': isSynced,
+      if (syncedAt != null) 'synced_at': syncedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
     });
@@ -180,14 +184,14 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
       {Value<String>? uid,
       Value<int>? serialNumber,
       Value<String>? name,
-      Value<bool>? isSynced,
+      Value<String?>? syncedAt,
       Value<String>? createdAt,
       Value<String?>? deletedAt}) {
     return CustomersCompanion(
       uid: uid ?? this.uid,
       serialNumber: serialNumber ?? this.serialNumber,
       name: name ?? this.name,
-      isSynced: isSynced ?? this.isSynced,
+      syncedAt: syncedAt ?? this.syncedAt,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
@@ -205,8 +209,8 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (isSynced.present) {
-      map['is_synced'] = Variable<bool>(isSynced.value);
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<String?>(syncedAt.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
@@ -223,7 +227,7 @@ class CustomersCompanion extends UpdateCompanion<Customer> {
           ..write('uid: $uid, ')
           ..write('serialNumber: $serialNumber, ')
           ..write('name: $name, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -255,14 +259,11 @@ class $CustomersTable extends Customers
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
-  final VerificationMeta _isSyncedMeta = const VerificationMeta('isSynced');
+  final VerificationMeta _syncedAtMeta = const VerificationMeta('syncedAt');
   @override
-  late final GeneratedColumn<bool?> isSynced = GeneratedColumn<bool?>(
-      'is_synced', aliasedName, false,
-      type: const BoolType(),
-      requiredDuringInsert: false,
-      defaultConstraints: 'CHECK (is_synced IN (0, 1))',
-      defaultValue: Constant(false));
+  late final GeneratedColumn<String?> syncedAt = GeneratedColumn<String?>(
+      'synced_at', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<String?> createdAt = GeneratedColumn<String?>(
@@ -275,7 +276,7 @@ class $CustomersTable extends Customers
       type: const StringType(), requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [uid, serialNumber, name, isSynced, createdAt, deletedAt];
+      [uid, serialNumber, name, syncedAt, createdAt, deletedAt];
   @override
   String get aliasedName => _alias ?? 'customers';
   @override
@@ -303,9 +304,9 @@ class $CustomersTable extends Customers
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('is_synced')) {
-      context.handle(_isSyncedMeta,
-          isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
+    if (data.containsKey('synced_at')) {
+      context.handle(_syncedAtMeta,
+          syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -338,14 +339,14 @@ class Product extends DataClass implements Insertable<Product> {
   final String uid;
   final int serialNumber;
   final String name;
-  final bool isSynced;
+  final String? syncedAt;
   final String createdAt;
   final String? deletedAt;
   Product(
       {required this.uid,
       required this.serialNumber,
       required this.name,
-      required this.isSynced,
+      this.syncedAt,
       required this.createdAt,
       this.deletedAt});
   factory Product.fromData(Map<String, dynamic> data, {String? prefix}) {
@@ -357,8 +358,8 @@ class Product extends DataClass implements Insertable<Product> {
           .mapFromDatabaseResponse(data['${effectivePrefix}serial_number'])!,
       name: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}name'])!,
-      isSynced: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_synced'])!,
+      syncedAt: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}synced_at']),
       createdAt: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}created_at'])!,
       deletedAt: const StringType()
@@ -371,7 +372,9 @@ class Product extends DataClass implements Insertable<Product> {
     map['uid'] = Variable<String>(uid);
     map['serial_number'] = Variable<int>(serialNumber);
     map['name'] = Variable<String>(name);
-    map['is_synced'] = Variable<bool>(isSynced);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<String?>(syncedAt);
+    }
     map['created_at'] = Variable<String>(createdAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<String?>(deletedAt);
@@ -384,7 +387,9 @@ class Product extends DataClass implements Insertable<Product> {
       uid: Value(uid),
       serialNumber: Value(serialNumber),
       name: Value(name),
-      isSynced: Value(isSynced),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
       createdAt: Value(createdAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -399,7 +404,7 @@ class Product extends DataClass implements Insertable<Product> {
       uid: serializer.fromJson<String>(json['uid']),
       serialNumber: serializer.fromJson<int>(json['serialNumber']),
       name: serializer.fromJson<String>(json['name']),
-      isSynced: serializer.fromJson<bool>(json['isSynced']),
+      syncedAt: serializer.fromJson<String?>(json['syncedAt']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
       deletedAt: serializer.fromJson<String?>(json['deletedAt']),
     );
@@ -411,7 +416,7 @@ class Product extends DataClass implements Insertable<Product> {
       'uid': serializer.toJson<String>(uid),
       'serialNumber': serializer.toJson<int>(serialNumber),
       'name': serializer.toJson<String>(name),
-      'isSynced': serializer.toJson<bool>(isSynced),
+      'syncedAt': serializer.toJson<String?>(syncedAt),
       'createdAt': serializer.toJson<String>(createdAt),
       'deletedAt': serializer.toJson<String?>(deletedAt),
     };
@@ -421,14 +426,14 @@ class Product extends DataClass implements Insertable<Product> {
           {String? uid,
           int? serialNumber,
           String? name,
-          bool? isSynced,
+          String? syncedAt,
           String? createdAt,
           String? deletedAt}) =>
       Product(
         uid: uid ?? this.uid,
         serialNumber: serialNumber ?? this.serialNumber,
         name: name ?? this.name,
-        isSynced: isSynced ?? this.isSynced,
+        syncedAt: syncedAt ?? this.syncedAt,
         createdAt: createdAt ?? this.createdAt,
         deletedAt: deletedAt ?? this.deletedAt,
       );
@@ -438,7 +443,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('uid: $uid, ')
           ..write('serialNumber: $serialNumber, ')
           ..write('name: $name, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -447,7 +452,7 @@ class Product extends DataClass implements Insertable<Product> {
 
   @override
   int get hashCode =>
-      Object.hash(uid, serialNumber, name, isSynced, createdAt, deletedAt);
+      Object.hash(uid, serialNumber, name, syncedAt, createdAt, deletedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -455,7 +460,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.uid == this.uid &&
           other.serialNumber == this.serialNumber &&
           other.name == this.name &&
-          other.isSynced == this.isSynced &&
+          other.syncedAt == this.syncedAt &&
           other.createdAt == this.createdAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -464,14 +469,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<String> uid;
   final Value<int> serialNumber;
   final Value<String> name;
-  final Value<bool> isSynced;
+  final Value<String?> syncedAt;
   final Value<String> createdAt;
   final Value<String?> deletedAt;
   const ProductsCompanion({
     this.uid = const Value.absent(),
     this.serialNumber = const Value.absent(),
     this.name = const Value.absent(),
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
   });
@@ -479,7 +484,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     required String uid,
     this.serialNumber = const Value.absent(),
     required String name,
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     required String createdAt,
     this.deletedAt = const Value.absent(),
   })  : uid = Value(uid),
@@ -489,7 +494,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<String>? uid,
     Expression<int>? serialNumber,
     Expression<String>? name,
-    Expression<bool>? isSynced,
+    Expression<String?>? syncedAt,
     Expression<String>? createdAt,
     Expression<String?>? deletedAt,
   }) {
@@ -497,7 +502,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (uid != null) 'uid': uid,
       if (serialNumber != null) 'serial_number': serialNumber,
       if (name != null) 'name': name,
-      if (isSynced != null) 'is_synced': isSynced,
+      if (syncedAt != null) 'synced_at': syncedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
     });
@@ -507,14 +512,14 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       {Value<String>? uid,
       Value<int>? serialNumber,
       Value<String>? name,
-      Value<bool>? isSynced,
+      Value<String?>? syncedAt,
       Value<String>? createdAt,
       Value<String?>? deletedAt}) {
     return ProductsCompanion(
       uid: uid ?? this.uid,
       serialNumber: serialNumber ?? this.serialNumber,
       name: name ?? this.name,
-      isSynced: isSynced ?? this.isSynced,
+      syncedAt: syncedAt ?? this.syncedAt,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
@@ -532,8 +537,8 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (isSynced.present) {
-      map['is_synced'] = Variable<bool>(isSynced.value);
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<String?>(syncedAt.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
@@ -550,7 +555,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('uid: $uid, ')
           ..write('serialNumber: $serialNumber, ')
           ..write('name: $name, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -581,14 +586,11 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
       type: const StringType(), requiredDuringInsert: true);
-  final VerificationMeta _isSyncedMeta = const VerificationMeta('isSynced');
+  final VerificationMeta _syncedAtMeta = const VerificationMeta('syncedAt');
   @override
-  late final GeneratedColumn<bool?> isSynced = GeneratedColumn<bool?>(
-      'is_synced', aliasedName, false,
-      type: const BoolType(),
-      requiredDuringInsert: false,
-      defaultConstraints: 'CHECK (is_synced IN (0, 1))',
-      defaultValue: Constant(false));
+  late final GeneratedColumn<String?> syncedAt = GeneratedColumn<String?>(
+      'synced_at', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<String?> createdAt = GeneratedColumn<String?>(
@@ -601,7 +603,7 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       type: const StringType(), requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [uid, serialNumber, name, isSynced, createdAt, deletedAt];
+      [uid, serialNumber, name, syncedAt, createdAt, deletedAt];
   @override
   String get aliasedName => _alias ?? 'products';
   @override
@@ -629,9 +631,9 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('is_synced')) {
-      context.handle(_isSyncedMeta,
-          isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
+    if (data.containsKey('synced_at')) {
+      context.handle(_syncedAtMeta,
+          syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -671,7 +673,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
   final double subTotal;
   final double marketFee;
   final double total;
-  final bool isSynced;
+  final String? syncedAt;
   final String createdAt;
   final String? deletedAt;
   DailySale(
@@ -685,7 +687,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
       required this.subTotal,
       required this.marketFee,
       required this.total,
-      required this.isSynced,
+      this.syncedAt,
       required this.createdAt,
       this.deletedAt});
   factory DailySale.fromData(Map<String, dynamic> data, {String? prefix}) {
@@ -711,8 +713,8 @@ class DailySale extends DataClass implements Insertable<DailySale> {
           .mapFromDatabaseResponse(data['${effectivePrefix}market_fee'])!,
       total: const RealType()
           .mapFromDatabaseResponse(data['${effectivePrefix}total'])!,
-      isSynced: const BoolType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}is_synced'])!,
+      syncedAt: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}synced_at']),
       createdAt: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}created_at'])!,
       deletedAt: const StringType()
@@ -732,7 +734,9 @@ class DailySale extends DataClass implements Insertable<DailySale> {
     map['sub_total'] = Variable<double>(subTotal);
     map['market_fee'] = Variable<double>(marketFee);
     map['total'] = Variable<double>(total);
-    map['is_synced'] = Variable<bool>(isSynced);
+    if (!nullToAbsent || syncedAt != null) {
+      map['synced_at'] = Variable<String?>(syncedAt);
+    }
     map['created_at'] = Variable<String>(createdAt);
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<String?>(deletedAt);
@@ -752,7 +756,9 @@ class DailySale extends DataClass implements Insertable<DailySale> {
       subTotal: Value(subTotal),
       marketFee: Value(marketFee),
       total: Value(total),
-      isSynced: Value(isSynced),
+      syncedAt: syncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncedAt),
       createdAt: Value(createdAt),
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
@@ -774,7 +780,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
       subTotal: serializer.fromJson<double>(json['subTotal']),
       marketFee: serializer.fromJson<double>(json['marketFee']),
       total: serializer.fromJson<double>(json['total']),
-      isSynced: serializer.fromJson<bool>(json['isSynced']),
+      syncedAt: serializer.fromJson<String?>(json['syncedAt']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
       deletedAt: serializer.fromJson<String?>(json['deletedAt']),
     );
@@ -793,7 +799,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
       'subTotal': serializer.toJson<double>(subTotal),
       'marketFee': serializer.toJson<double>(marketFee),
       'total': serializer.toJson<double>(total),
-      'isSynced': serializer.toJson<bool>(isSynced),
+      'syncedAt': serializer.toJson<String?>(syncedAt),
       'createdAt': serializer.toJson<String>(createdAt),
       'deletedAt': serializer.toJson<String?>(deletedAt),
     };
@@ -810,7 +816,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
           double? subTotal,
           double? marketFee,
           double? total,
-          bool? isSynced,
+          String? syncedAt,
           String? createdAt,
           String? deletedAt}) =>
       DailySale(
@@ -824,7 +830,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
         subTotal: subTotal ?? this.subTotal,
         marketFee: marketFee ?? this.marketFee,
         total: total ?? this.total,
-        isSynced: isSynced ?? this.isSynced,
+        syncedAt: syncedAt ?? this.syncedAt,
         createdAt: createdAt ?? this.createdAt,
         deletedAt: deletedAt ?? this.deletedAt,
       );
@@ -841,7 +847,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
           ..write('subTotal: $subTotal, ')
           ..write('marketFee: $marketFee, ')
           ..write('total: $total, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -860,7 +866,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
       subTotal,
       marketFee,
       total,
-      isSynced,
+      syncedAt,
       createdAt,
       deletedAt);
   @override
@@ -877,7 +883,7 @@ class DailySale extends DataClass implements Insertable<DailySale> {
           other.subTotal == this.subTotal &&
           other.marketFee == this.marketFee &&
           other.total == this.total &&
-          other.isSynced == this.isSynced &&
+          other.syncedAt == this.syncedAt &&
           other.createdAt == this.createdAt &&
           other.deletedAt == this.deletedAt);
 }
@@ -893,7 +899,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
   final Value<double> subTotal;
   final Value<double> marketFee;
   final Value<double> total;
-  final Value<bool> isSynced;
+  final Value<String?> syncedAt;
   final Value<String> createdAt;
   final Value<String?> deletedAt;
   const DailySalesCompanion({
@@ -907,7 +913,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
     this.subTotal = const Value.absent(),
     this.marketFee = const Value.absent(),
     this.total = const Value.absent(),
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
   });
@@ -922,7 +928,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
     required double subTotal,
     required double marketFee,
     required double total,
-    this.isSynced = const Value.absent(),
+    this.syncedAt = const Value.absent(),
     required String createdAt,
     this.deletedAt = const Value.absent(),
   })  : uid = Value(uid),
@@ -946,7 +952,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
     Expression<double>? subTotal,
     Expression<double>? marketFee,
     Expression<double>? total,
-    Expression<bool>? isSynced,
+    Expression<String?>? syncedAt,
     Expression<String>? createdAt,
     Expression<String?>? deletedAt,
   }) {
@@ -961,7 +967,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
       if (subTotal != null) 'sub_total': subTotal,
       if (marketFee != null) 'market_fee': marketFee,
       if (total != null) 'total': total,
-      if (isSynced != null) 'is_synced': isSynced,
+      if (syncedAt != null) 'synced_at': syncedAt,
       if (createdAt != null) 'created_at': createdAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
     });
@@ -978,7 +984,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
       Value<double>? subTotal,
       Value<double>? marketFee,
       Value<double>? total,
-      Value<bool>? isSynced,
+      Value<String?>? syncedAt,
       Value<String>? createdAt,
       Value<String?>? deletedAt}) {
     return DailySalesCompanion(
@@ -992,7 +998,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
       subTotal: subTotal ?? this.subTotal,
       marketFee: marketFee ?? this.marketFee,
       total: total ?? this.total,
-      isSynced: isSynced ?? this.isSynced,
+      syncedAt: syncedAt ?? this.syncedAt,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
     );
@@ -1031,8 +1037,8 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
     if (total.present) {
       map['total'] = Variable<double>(total.value);
     }
-    if (isSynced.present) {
-      map['is_synced'] = Variable<bool>(isSynced.value);
+    if (syncedAt.present) {
+      map['synced_at'] = Variable<String?>(syncedAt.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
@@ -1056,7 +1062,7 @@ class DailySalesCompanion extends UpdateCompanion<DailySale> {
           ..write('subTotal: $subTotal, ')
           ..write('marketFee: $marketFee, ')
           ..write('total: $total, ')
-          ..write('isSynced: $isSynced, ')
+          ..write('syncedAt: $syncedAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('deletedAt: $deletedAt')
           ..write(')'))
@@ -1124,14 +1130,11 @@ class $DailySalesTable extends DailySales
   late final GeneratedColumn<double?> total = GeneratedColumn<double?>(
       'total', aliasedName, false,
       type: const RealType(), requiredDuringInsert: true);
-  final VerificationMeta _isSyncedMeta = const VerificationMeta('isSynced');
+  final VerificationMeta _syncedAtMeta = const VerificationMeta('syncedAt');
   @override
-  late final GeneratedColumn<bool?> isSynced = GeneratedColumn<bool?>(
-      'is_synced', aliasedName, false,
-      type: const BoolType(),
-      requiredDuringInsert: false,
-      defaultConstraints: 'CHECK (is_synced IN (0, 1))',
-      defaultValue: Constant(false));
+  late final GeneratedColumn<String?> syncedAt = GeneratedColumn<String?>(
+      'synced_at', aliasedName, true,
+      type: const StringType(), requiredDuringInsert: false);
   final VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
   @override
   late final GeneratedColumn<String?> createdAt = GeneratedColumn<String?>(
@@ -1154,7 +1157,7 @@ class $DailySalesTable extends DailySales
         subTotal,
         marketFee,
         total,
-        isSynced,
+        syncedAt,
         createdAt,
         deletedAt
       ];
@@ -1231,9 +1234,9 @@ class $DailySalesTable extends DailySales
     } else if (isInserting) {
       context.missing(_totalMeta);
     }
-    if (data.containsKey('is_synced')) {
-      context.handle(_isSyncedMeta,
-          isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
+    if (data.containsKey('synced_at')) {
+      context.handle(_syncedAtMeta,
+          syncedAt.isAcceptableOrUnknown(data['synced_at']!, _syncedAtMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,

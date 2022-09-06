@@ -4,11 +4,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:logging/logging.dart';
 
-import 'daily_sale/add_daily_sale.dart';
+import 'view/daily_sale/add_daily_sale.dart';
 import 'l10n/l10n.dart';
 import 'service_locator.dart';
-import 'stores/locale_store.dart';
-import 'theme/dark_theme.dart';
+import 'state/locale_store.dart';
 import 'theme/light_theme.dart';
 import 'view/customer/add_customer.dart';
 import 'view/home/home_screen.dart';

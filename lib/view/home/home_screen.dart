@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../daily_sale/add_daily_sale.dart';
+import '../daily_sale/add_daily_sale.dart';
 import '../customer/add_customer.dart';
 import '../product/add_product.dart';
 import '../reuseable/appbar.dart';

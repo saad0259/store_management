@@ -1,41 +1,39 @@
 import 'dart:developer';
 
-import 'package:mobx/mobx.dart';
-
 import '../db/db_helper/db_helper.dart';
 import '../models/product.dart';
 import '../service_locator.dart';
 import '../utils/function_response.dart';
-part 'product_store.g.dart';
 
-class ProductStore = _ProductStore with _$ProductStore;
-
-abstract class _ProductStore with Store {
-  _ProductStore(this.dbHelper);
-
+class ProductRepo {
+  ProductRepo(this.dbHelper);
   final DbHelper dbHelper;
-
-  @observable
-  ObservableList<Product> productList = ObservableList<Product>.of([]);
-
-  @action
   Stream<List<Product>> watchProducts() {
     return dbHelper.watchDbProducts();
   }
 
-  @action
+  Future<List<Product>> getProducts() async {
+    return await dbHelper.watchDbProducts().first;
+  }
+
+  Future<Product?> getProductById(String id) async {
+    return await dbHelper.getProductById(int.parse(id));
+  }
+
+  Future<Product?> getProductBySerial(String serial) async {
+    return await dbHelper.getProductBySerial(int.parse(serial));
+  }
+
   Future<FunctionResponse> addProduct(Product product) async {
     FunctionResponse fResponse = getIt<FunctionResponse>();
 
     try {
-      log('Id I sent: ${product.uid}');
       final int? dbId = await dbHelper.addOrUpdateProducts(
         id: product.uid,
         name: product.name,
         createdAt: DateTime.now().toIso8601String(),
       );
 
-      productList.add(product);
       fResponse.passed();
     } catch (e) {
       log(e.toString());
@@ -43,7 +41,6 @@ abstract class _ProductStore with Store {
     return fResponse;
   }
 
-  @action
   Future<void> removeProduct(Product product) async {
     final int? id = await dbHelper.addOrUpdateProducts(
       id: product.uid,
@@ -51,7 +48,8 @@ abstract class _ProductStore with Store {
       name: product.name,
       createdAt: product.createdAt.toIso8601String(),
       deletedAt: DateTime.now().toIso8601String(),
+      syncedAt:
+          product.syncedAt == null ? null : product.syncedAt!.toIso8601String(),
     );
-    if (id != null) productList.remove(product);
   }
 }

@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../models/product.dart';
+import '../../repo/product_repo.dart';
 import '../../service_locator.dart';
-import '../../stores/product_store.dart';
 import '../../utils/function_response.dart';
 import '../../utils/reusable_widgets.dart';
 import '../../view/reuseable/appbar.dart';
@@ -13,7 +13,7 @@ import '../../utils/custom_alerts.dart';
 class AddProductScreen extends StatelessWidget {
   AddProductScreen({Key? key}) : super(key: key);
   static const routeName = '/add-product-screen';
-  final ProductStore productStore = getIt<ProductStore>();
+  final ProductRepo productRepo = getIt<ProductRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class AddProductScreen extends StatelessWidget {
                   indent: 150,
                   endIndent: 100,
                 ),
-                ProductList(productStore: productStore),
+                ProductList(productRepo: productRepo),
               ],
             ),
           ),
@@ -49,9 +49,9 @@ class AddProductScreen extends StatelessWidget {
 class ProductList extends StatelessWidget {
   ProductList({
     Key? key,
-    required this.productStore,
+    required this.productRepo,
   }) : super(key: key);
-  final ProductStore productStore;
+  final ProductRepo productRepo;
   final CustomAlerts customAlerts = getIt<CustomAlerts>();
 
   @override
@@ -71,7 +71,7 @@ class ProductList extends StatelessWidget {
             const SizedBox(height: 20),
             Expanded(
               child: StreamBuilder<List<Product>>(
-                  stream: productStore.watchProducts(),
+                  stream: productRepo.watchProducts(),
                   builder: (context, snapshot) {
                     return (snapshot.hasError ||
                             !snapshot.hasData ||
@@ -120,7 +120,7 @@ class ProductList extends StatelessWidget {
                                                     .confirmDelete(
                                                         context: context);
                                             if (fResponse.success) {
-                                              productStore
+                                              productRepo
                                                   .removeProduct(currenItem);
                                             }
 
@@ -159,7 +159,7 @@ class AddProductWidget extends StatefulWidget {
 class _AddProductWidgetState extends State<AddProductWidget> {
   final TextEditingController nameController = TextEditingController();
 
-  final ProductStore productStore = getIt<ProductStore>();
+  final ProductRepo productRepo = getIt<ProductRepo>();
   final CustomAlerts customAlerts = getIt<CustomAlerts>();
 
   late FocusNode _txtNode;
@@ -184,17 +184,20 @@ class _AddProductWidgetState extends State<AddProductWidget> {
       serialNumber: DateTime.now().millisecondsSinceEpoch,
       createdAt: DateTime.now(),
       deletedAt: null,
+      syncedAt: null,
     );
-    final FunctionResponse fResponse = await productStore.addProduct(product);
+    final FunctionResponse fResponse = await productRepo.addProduct(product);
     if (fResponse.success) {
       nameController.clear();
     }
-    customAlerts.showSnackBar(
-        context,
-        fResponse.success
-            ? appLocale.productAddedSuccessfully
-            : appLocale.error,
-        success: fResponse.success);
+    if (mounted) {
+      customAlerts.showSnackBar(
+          context,
+          fResponse.success
+              ? appLocale.productAddedSuccessfully
+              : appLocale.error,
+          success: fResponse.success);
+    }
   }
 
   @override

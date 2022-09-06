@@ -3,7 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:store_management/l10n/l10n.dart';
 
 import '../../service_locator.dart';
-import '../../stores/locale_store.dart';
+import '../../state/locale_store.dart';
 
 class GlobalAppBar extends StatelessWidget implements PreferredSizeWidget {
   GlobalAppBar(

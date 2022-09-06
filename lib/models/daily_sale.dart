@@ -1,3 +1,5 @@
+import '../db/database.dart' as db show DailySale;
+
 class DailySale {
   final String uid;
   final int serialNumber;
@@ -9,9 +11,9 @@ class DailySale {
   final double subTotal;
   final double marketFee;
   final double total;
-  final bool isSynced;
   final DateTime createdAt;
   final DateTime? deletedAt;
+  final DateTime? syncedAt;
 
   DailySale({
     required this.uid,
@@ -24,7 +26,7 @@ class DailySale {
     required this.subTotal,
     required this.marketFee,
     required this.total,
-    required this.isSynced,
+    required this.syncedAt,
     required this.createdAt,
     required this.deletedAt,
   });
@@ -41,7 +43,7 @@ class DailySale {
         subTotal: json["subtotal"] ?? 0,
         marketFee: json["marketFee"] ?? 0,
         total: json["total"] ?? 0,
-        isSynced: json["isSynced"] ?? false,
+        syncedAt: json["syncedAt"],
         createdAt: json['createdAt'],
         deletedAt: json['deletedAt'],
       );
@@ -56,8 +58,28 @@ class DailySale {
         "subtotal": subTotal,
         "marketFee": marketFee,
         "total": total,
-        "isSynced": isSynced,
+        "syncedAt": syncedAt,
         'createdAt': createdAt,
         'deletedAt': deletedAt,
       };
+
+  factory DailySale.fromDb(db.DailySale dbDailySale) => DailySale(
+        uid: dbDailySale.uid,
+        serialNumber: dbDailySale.serialNumber,
+        date: DateTime.parse(dbDailySale.date),
+        customerId: dbDailySale.customerId,
+        productId: dbDailySale.productId,
+        quantity: dbDailySale.quantity,
+        pricePerItem: dbDailySale.pricePerItem,
+        subTotal: dbDailySale.subTotal,
+        marketFee: dbDailySale.marketFee,
+        total: dbDailySale.total,
+        createdAt: DateTime.parse(dbDailySale.createdAt),
+        deletedAt: dbDailySale.deletedAt == null
+            ? null
+            : DateTime.parse(dbDailySale.deletedAt!),
+        syncedAt: dbDailySale.syncedAt == null
+            ? null
+            : DateTime.parse(dbDailySale.syncedAt!),
+      );
 }

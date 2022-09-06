@@ -21,40 +21,44 @@ class DbHelper {
   DbHelper(this._db);
 
 //Customer
-  Stream<List<Customer>> watchDbCustomers() {
-    final Stream<List<db.Customer>> dbCustomers = _db.watchAllCutomers;
-    return dbCustomers.map((event) => event
-        .map((e) => Customer(
-              uid: e.uid,
-              name: e.name,
-              serialNumber: e.serialNumber,
-              createdAt: DateTime.parse(e.createdAt),
-              deletedAt:
-                  e.deletedAt == null ? null : DateTime.parse(e.deletedAt!),
-              isSynced: e.isSynced,
-            ))
-        .toList());
+
+  Future<Customer?> getCustomerById(int id) async {
+    Customer? customer;
+    try {
+      final db.Customer dbCustomer = await _db.getCustomerById(id.toString());
+
+      customer = Customer.fromDb(dbCustomer);
+    } catch (e) {
+      log('Error getting customer by id : $e');
+    }
+
+    return customer;
   }
 
-  Future<int?> addOrUpdateDbCustomers({
-    required String? id,
-    required String name,
-    required String createdAt,
-    String? deletedAt,
-    int? serialNumber,
-    bool isSynced = false,
-  }) async {
+  Future<Customer?> getCustomerBySerial(int serial) async {
+    Customer? customer;
     try {
-      final _customerId =
-          await _db.createOrUpdateCustomer(db.CustomersCompanion(
-        uid: id == null ? const Value.absent() : Value(id),
-        serialNumber:
-            serialNumber == null ? const Value.absent() : Value(serialNumber),
-        name: Value(name),
-        createdAt: Value(createdAt),
-        deletedAt: deletedAt == null ? const Value.absent() : Value(deletedAt),
-        isSynced: Value(isSynced),
-      ));
+      final db.Customer dbCustomer = await _db.getCustomerBySerial(serial);
+
+      customer = Customer.fromDb(dbCustomer);
+    } catch (e) {
+      log('Error getting customer by serial : $e');
+    }
+
+    return customer;
+  }
+
+  Stream<List<Customer>> watchDbCustomers() {
+    final Stream<List<db.Customer>> dbCustomers = _db.watchAllCutomers;
+    return dbCustomers
+        .map((event) => event.map((e) => Customer.fromDb(e)).toList());
+  }
+
+  Future<int?> addOrUpdateDbCustomers(
+    Customer customer,
+  ) async {
+    try {
+      final _customerId = await _db.createOrUpdateCustomer(customer.toDb());
       return _customerId;
     } catch (e) {
       log('Error in addOrUpdateDbCustomers: $e');
@@ -64,19 +68,36 @@ class DbHelper {
 
   //Products
 
+  Future<Product?> getProductById(int id) async {
+    Product? product;
+    try {
+      final db.Product dbProduct = await _db.getProductById(id.toString());
+
+      product = Product.fromDb(dbProduct);
+    } catch (e) {
+      log('Error getting product by id : $e');
+    }
+
+    return product;
+  }
+
+  Future<Product?> getProductBySerial(int serial) async {
+    Product? product;
+    try {
+      final db.Product dbProduct = await _db.getProductBySerial(serial);
+
+      product = Product.fromDb(dbProduct);
+    } catch (e) {
+      log('Error getting product by serial : $e');
+    }
+
+    return product;
+  }
+
   Stream<List<Product>> watchDbProducts() {
     final Stream<List<db.Product>> dbProducts = _db.watchAllProducts;
-    return dbProducts.map((event) => event
-        .map((e) => Product(
-              uid: e.uid,
-              name: e.name,
-              serialNumber: e.serialNumber,
-              createdAt: DateTime.parse(e.createdAt),
-              deletedAt:
-                  e.deletedAt == null ? null : DateTime.parse(e.deletedAt!),
-              isSynced: e.isSynced,
-            ))
-        .toList());
+    return dbProducts
+        .map((event) => event.map((e) => Product.fromDb(e)).toList());
   }
 
   Future<int?> addOrUpdateProducts({
@@ -85,7 +106,7 @@ class DbHelper {
     required String createdAt,
     String? deletedAt,
     int? serialNumber,
-    bool isSynced = false,
+    String? syncedAt,
   }) async {
     try {
       final productId = await _db.createOrUpdateProduct(db.ProductsCompanion(
@@ -95,7 +116,7 @@ class DbHelper {
         name: Value(name),
         createdAt: Value(createdAt),
         deletedAt: deletedAt == null ? const Value.absent() : Value(deletedAt),
-        isSynced: Value(isSynced),
+        syncedAt: syncedAt == null ? const Value.absent() : Value(syncedAt),
       ));
       return productId;
     } catch (e) {
@@ -107,24 +128,8 @@ class DbHelper {
   //Daily Sales
   Stream<List<DailySale>> watchDbDailySales() {
     final Stream<List<db.DailySale>> dbDailySales = _db.watchAllDailySales;
-    return dbDailySales.map((event) => event
-        .map((e) => DailySale(
-              uid: e.uid,
-              serialNumber: e.serialNumber,
-              date: DateTime.parse(e.date),
-              customerId: e.customerId,
-              productId: e.productId,
-              quantity: e.quantity,
-              pricePerItem: e.pricePerItem,
-              subTotal: e.subTotal,
-              marketFee: e.marketFee,
-              total: e.total,
-              createdAt: DateTime.parse(e.createdAt),
-              deletedAt:
-                  e.deletedAt == null ? null : DateTime.parse(e.deletedAt!),
-              isSynced: e.isSynced,
-            ))
-        .toList());
+    return dbDailySales
+        .map((event) => event.map((e) => DailySale.fromDb(e)).toList());
   }
 
   Future<int?> addOrUpdateDailySales({
@@ -140,7 +145,7 @@ class DbHelper {
     required double total,
     required String createdAt,
     String? deletedAt,
-    bool isSynced = false,
+    String? syncedAt,
   }) async {
     try {
       final dailySaleId = await _db.createOrUpdateDailySale(
@@ -159,7 +164,7 @@ class DbHelper {
           createdAt: Value(createdAt),
           deletedAt:
               deletedAt == null ? const Value.absent() : Value(deletedAt),
-          isSynced: Value(isSynced),
+          syncedAt: syncedAt == null ? const Value.absent() : Value(syncedAt),
         ),
       );
       return dailySaleId;

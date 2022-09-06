@@ -12,7 +12,7 @@ class Customers extends Table {
   TextColumn get uid => text()();
   IntColumn get serialNumber => integer().autoIncrement()();
   TextColumn get name => text()();
-  BoolColumn get isSynced => boolean().withDefault(Constant(false))();
+  TextColumn get syncedAt => text().nullable()();
   TextColumn get createdAt => text()();
   TextColumn get deletedAt => text().nullable()();
 }
@@ -21,7 +21,7 @@ class Products extends Table {
   TextColumn get uid => text()();
   IntColumn get serialNumber => integer().autoIncrement()();
   TextColumn get name => text()();
-  BoolColumn get isSynced => boolean().withDefault(Constant(false))();
+  TextColumn get syncedAt => text().nullable()();
   TextColumn get createdAt => text()();
   TextColumn get deletedAt => text().nullable()();
 }
@@ -37,7 +37,7 @@ class DailySales extends Table {
   RealColumn get subTotal => real()();
   RealColumn get marketFee => real()();
   RealColumn get total => real()();
-  BoolColumn get isSynced => boolean().withDefault(Constant(false))();
+  TextColumn get syncedAt => text().nullable()();
   TextColumn get createdAt => text()();
   TextColumn get deletedAt => text().nullable()();
 }
@@ -61,11 +61,42 @@ class MyAppDb extends _$MyAppDb {
         ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
       .watch();
 
+  Future<Customer> getCustomerById(String id) async {
+    final customer = await (select(customers)
+          ..where((tbl) => tbl.uid.equals(id) & tbl.deletedAt.isNull()))
+        .getSingle();
+    return customer;
+  }
+
+  Future<Customer> getCustomerBySerial(int serial) async {
+    final customer = await (select(customers)
+          ..where((tbl) =>
+              tbl.serialNumber.equals(serial) & tbl.deletedAt.isNull()))
+        .getSingle();
+    return customer;
+  }
+
   Future<int> createOrUpdateCustomer(CustomersCompanion entry) {
     return into(customers).insertOnConflictUpdate(entry);
   }
 
   //Products
+
+  Future<Product> getProductById(String id) async {
+    final product = await (select(products)
+          ..where((tbl) => tbl.uid.equals(id) & tbl.deletedAt.isNull()))
+        .getSingle();
+    return product;
+  }
+
+  Future<Product> getProductBySerial(int serial) async {
+    final product = await (select(products)
+          ..where((tbl) =>
+              tbl.serialNumber.equals(serial) & tbl.deletedAt.isNull()))
+        .getSingle();
+    return product;
+  }
+
   Stream<List<Product>> get watchAllProducts => (select(products)
         ..where((tbl) => tbl.deletedAt.isNull())
         ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
@@ -92,7 +123,9 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'store_management_db.sqlite'));
+    final file = File(
+      p.join(dbFolder.path, 'store_management_db.sqlite'),
+    );
     return NativeDatabase(file);
   });
 }

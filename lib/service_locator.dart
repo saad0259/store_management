@@ -4,10 +4,11 @@ import 'db/database.dart';
 import 'db/db_helper/db_helper.dart';
 import 'l10n/l10n.dart';
 import 'repo/customer_repo.dart';
-import 'stores/customer_store.dart';
-import 'stores/daily_sale_store.dart';
-import 'stores/locale_store.dart';
-import 'stores/product_store.dart';
+import 'repo/daily_sale_repo.dart';
+import 'repo/product_repo.dart';
+import 'state/customer_store.dart';
+import 'state/daily_sale_store.dart';
+import 'state/locale_store.dart';
 import 'utils/custom_alerts.dart';
 import 'utils/function_response.dart';
 
@@ -31,17 +32,19 @@ Future<void> setupLocator() async {
   getIt.registerFactory(() => CustomerRepo(
         getIt<DbHelper>(),
       ));
+  getIt.registerLazySingleton(() => DailySaleRepo(
+        getIt<DbHelper>(),
+      ));
+  getIt.registerLazySingleton(() => ProductRepo(
+        getIt<DbHelper>(),
+      ));
 
   //Stores
   getIt.registerLazySingleton(() => LocaleStore());
-  getIt.registerLazySingleton(() => CustomerStore(
-        getIt<DbHelper>(),
-      ));
-  getIt.registerLazySingleton(() => ProductStore(
-        getIt<DbHelper>(),
-      ));
+  getIt.registerLazySingleton(() => CustomerStore());
 
   getIt.registerLazySingleton(() => DailySaleStore(
-        getIt<DbHelper>(),
+        getIt<CustomerRepo>(),
+        getIt<ProductRepo>(),
       ));
 }
